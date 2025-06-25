@@ -23,6 +23,7 @@ import {
   CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -40,6 +41,12 @@ const navigation = [
 
 export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleNavigation = (href: string) => {
+    navigate(href);
+    setSidebarOpen(false);
+  };
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -60,7 +67,7 @@ export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: Dashboa
                 "w-full justify-start",
                 isActive && "bg-blue-600 text-white"
               )}
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => handleNavigation(item.href)}
             >
               <Icon className="mr-2 h-4 w-4" />
               {item.name}
@@ -73,7 +80,11 @@ export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: Dashboa
         <div className="bg-blue-50 p-4 rounded-lg">
           <h4 className="font-medium text-sm mb-1">Free Trial</h4>
           <p className="text-xs text-gray-600 mb-2">5 days remaining</p>
-          <Button size="sm" className="w-full">
+          <Button 
+            size="sm" 
+            className="w-full"
+            onClick={() => handleNavigation('/subscription')}
+          >
             Upgrade Now
           </Button>
         </div>
@@ -140,16 +151,16 @@ export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: Dashboa
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/settings')}>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/subscription')}>
                     <CreditCard className="mr-2 h-4 w-4" />
                     <span>Subscription</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/')}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>

@@ -1,4 +1,3 @@
-
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,8 +26,11 @@ import {
   Upload,
   FileText
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   // Mock data for charts
   const pnlData = [
     { date: '2024-01', pnl: 1200 },
@@ -93,15 +95,24 @@ const Dashboard = () => {
       <div className="space-y-6">
         {/* Quick Actions */}
         <div className="flex flex-wrap gap-4">
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => navigate('/trades/new')}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Add Trade
           </Button>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => navigate('/import')}
+          >
             <Upload className="mr-2 h-4 w-4" />
             Import CSV
           </Button>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => navigate('/trades')}
+          >
             <FileText className="mr-2 h-4 w-4" />
             View All Trades
           </Button>
@@ -234,7 +245,10 @@ const Dashboard = () => {
                 </div>
                 <Progress value={28} className="h-2" />
               </div>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+              <Button 
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                onClick={() => navigate('/subscription')}
+              >
                 Upgrade to Pro
               </Button>
               <p className="text-xs text-muted-foreground text-center">
