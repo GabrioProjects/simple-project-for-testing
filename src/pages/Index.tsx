@@ -1,25 +1,23 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Shield, BarChart3, FileText, CheckCircle, ArrowRight } from "lucide-react";
-import { AuthDialog } from "@/components/auth/AuthDialog";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleGetStarted = () => {
-    setAuthMode('signup');
-    setShowAuthDialog(true);
+    // Bypass auth for now - go directly to dashboard
+    navigate('/dashboard');
   };
 
   const handleSignIn = () => {
-    setAuthMode('signin');
-    setShowAuthDialog(true);
+    // Bypass auth for now - go directly to dashboard
+    navigate('/dashboard');
   };
 
   const features = [
@@ -64,9 +62,12 @@ const Index = () => {
               <TrendingUp className="h-8 w-8 text-blue-600" />
               <span className="text-xl font-bold text-gray-900">TradeJournal Pro</span>
             </div>
-            <Button variant="outline" onClick={handleSignIn}>
-              Sign In
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleSignIn}>
+                Go to Dashboard
+              </Button>
+              <Badge variant="secondary">Auth Disabled for Testing</Badge>
+            </div>
           </div>
         </div>
       </nav>
@@ -87,7 +88,7 @@ const Index = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={handleGetStarted} className="bg-blue-600 hover:bg-blue-700">
-              Start Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+              Test Dashboard <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button variant="outline" size="lg">
               Watch Demo
@@ -96,7 +97,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -127,7 +127,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -174,7 +173,7 @@ const Index = () => {
                   className="w-full bg-white text-blue-600 hover:bg-gray-100"
                   onClick={handleGetStarted}
                 >
-                  Start 7-Day Free Trial
+                  Test Dashboard Now
                 </Button>
               </div>
             </div>
@@ -182,7 +181,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
@@ -196,21 +194,13 @@ const Index = () => {
             className="bg-blue-600 hover:bg-blue-700"
             onClick={handleGetStarted}
           >
-            Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+            Test Dashboard <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           <p className="text-sm text-gray-400 mt-4">
-            No credit card required • Cancel anytime
+            No authentication required for testing • Full access to features
           </p>
         </div>
       </section>
-
-      {/* Auth Dialog */}
-      <AuthDialog 
-        open={showAuthDialog} 
-        onOpenChange={setShowAuthDialog}
-        mode={authMode}
-        onModeChange={setAuthMode}
-      />
     </div>
   );
 };
