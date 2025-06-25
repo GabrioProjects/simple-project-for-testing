@@ -11,6 +11,7 @@ import AddTrade from "./pages/AddTrade";
 import Import from "./pages/Import";
 import Settings from "./pages/Settings";
 import Subscription from "./pages/Subscription";
+import Statistics from "./pages/Statistics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/trades" element={<Trades />} />
           <Route path="/trades/new" element={<AddTrade />} />
+          <Route path="/statistics" element={<Statistics />} />
           <Route path="/import" element={<Import />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/subscription" element={<Subscription />} />

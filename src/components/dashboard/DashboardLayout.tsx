@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,7 +19,8 @@ import {
   Menu,
   Plus,
   Upload,
-  CreditCard
+  CreditCard,
+  PieChart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +33,7 @@ interface DashboardLayoutProps {
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
   { name: 'Trades', href: '/trades', icon: FileText },
+  { name: 'Statistics', href: '/statistics', icon: PieChart },
   { name: 'Add Trade', href: '/trades/new', icon: Plus },
   { name: 'Import CSV', href: '/import', icon: Upload },
   { name: 'Subscription', href: '/subscription', icon: CreditCard },

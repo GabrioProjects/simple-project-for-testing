@@ -18,6 +18,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, TrendingUp, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -25,9 +27,15 @@ import { useNavigate } from "react-router-dom";
 const Trades = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({
+    pair: "",
+    type: "",
+    strategy: "",
+    profitable: ""
+  });
 
-  // Mock trades data
-  const trades = [
+  // Mock closed trades data only
+  const allTrades = [
     {
       id: 1,
       date: "2024-06-24",
@@ -83,22 +91,75 @@ const Trades = () => {
     {
       id: 5,
       date: "2024-06-20",
-      pair: "USD/JPY",
+      pair: "USD/CHF",
       type: "BUY",
-      lotSize: 0.1,
-      entryPrice: 157.25,
-      exitPrice: null,
-      pnl: 45.30,
-      status: "Open",
+      lotSize: 0.08,
+      entryPrice: 0.8945,
+      exitPrice: 0.8925,
+      pnl: -67.40,
+      status: "Closed",
       strategy: "Breakout",
-      notes: "Monitoring for continuation"
+      notes: "Failed breakout"
+    },
+    {
+      id: 6,
+      date: "2024-06-19",
+      pair: "EUR/GBP",
+      type: "SELL",
+      lotSize: 0.12,
+      entryPrice: 0.8465,
+      exitPrice: 0.8445,
+      pnl: 98.20,
+      status: "Closed",
+      strategy: "Reversal",
+      notes: "Clean reversal signal"
     }
   ];
 
-  const filteredTrades = trades.filter(trade =>
-    trade.pair.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    trade.strategy.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Enhanced search function - searches all attributes
+  const filteredTrades = allTrades.filter(trade => {
+    const searchMatch = searchTerm === "" || 
+      trade.pair.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trade.strategy.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trade.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trade.date.includes(searchTerm) ||
+      trade.notes.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trade.entryPrice.toString().includes(searchTerm) ||
+      trade.exitPrice.toString().includes(searchTerm) ||
+      trade.pnl.toString().includes(searchTerm);
+
+    const pairMatch = filters.pair === "" || trade.pair === filters.pair;
+    const typeMatch = filters.type === "" || trade.type === filters.type;
+    const strategyMatch = filters.strategy === "" || trade.strategy === filters.strategy;
+    const profitableMatch = filters.profitable === "" || 
+      (filters.profitable === "profitable" && trade.pnl > 0) ||
+      (filters.profitable === "losing" && trade.pnl < 0);
+
+    return searchMatch && pairMatch && typeMatch && strategyMatch && profitableMatch;
+  });
+
+  const handleEditTrade = (tradeId: number) => {
+    console.log(`Editing trade ${tradeId}`);
+    // Navigate to edit page or open edit modal
+    navigate(`/trades/edit/${tradeId}`);
+  };
+
+  const handleDeleteTrade = (tradeId: number) => {
+    console.log(`Deleting trade ${tradeId}`);
+    // Implement delete functionality
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      pair: "",
+      type: "",
+      strategy: "",
+      profitable: ""
+    });
+  };
+
+  const uniquePairs = [...new Set(allTrades.map(trade => trade.pair))];
+  const uniqueStrategies = [...new Set(allTrades.map(trade => trade.strategy))];
 
   return (
     <DashboardLayout currentPage="Trades">
@@ -109,16 +170,83 @@ const Trades = () => {
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search trades..."
+                placeholder="Search all trade data..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-64"
               />
             </div>
-            <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" />
-              Filters
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filters
+                  {Object.values(filters).some(f => f !== "") && (
+                    <Badge variant="secondary" className="ml-2 h-5 w-5 rounded-full p-0 text-xs">
+                      {Object.values(filters).filter(f => f !== "").length}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <div className="p-2">
+                  <div className="mb-2">
+                    <label className="text-sm font-medium">Currency Pair</label>
+                    <select 
+                      className="w-full mt-1 p-1 border rounded text-sm"
+                      value={filters.pair}
+                      onChange={(e) => setFilters({...filters, pair: e.target.value})}
+                    >
+                      <option value="">All Pairs</option>
+                      {uniquePairs.map(pair => (
+                        <option key={pair} value={pair}>{pair}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mb-2">
+                    <label className="text-sm font-medium">Trade Type</label>
+                    <select 
+                      className="w-full mt-1 p-1 border rounded text-sm"
+                      value={filters.type}
+                      onChange={(e) => setFilters({...filters, type: e.target.value})}
+                    >
+                      <option value="">All Types</option>
+                      <option value="BUY">BUY</option>
+                      <option value="SELL">SELL</option>
+                    </select>
+                  </div>
+                  <div className="mb-2">
+                    <label className="text-sm font-medium">Strategy</label>
+                    <select 
+                      className="w-full mt-1 p-1 border rounded text-sm"
+                      value={filters.strategy}
+                      onChange={(e) => setFilters({...filters, strategy: e.target.value})}
+                    >
+                      <option value="">All Strategies</option>
+                      {uniqueStrategies.map(strategy => (
+                        <option key={strategy} value={strategy}>{strategy}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mb-2">
+                    <label className="text-sm font-medium">Profitability</label>
+                    <select 
+                      className="w-full mt-1 p-1 border rounded text-sm"
+                      value={filters.profitable}
+                      onChange={(e) => setFilters({...filters, profitable: e.target.value})}
+                    >
+                      <option value="">All Trades</option>
+                      <option value="profitable">Profitable Only</option>
+                      <option value="losing">Losing Only</option>
+                    </select>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={clearFilters}>
+                  Clear All Filters
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <Button 
             className="bg-blue-600 hover:bg-blue-700"
@@ -133,11 +261,11 @@ const Trades = () => {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Total Trades</CardTitle>
+              <CardTitle className="text-sm font-medium">Closed Trades</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{trades.length}</div>
-              <div className="text-xs text-gray-500">This month</div>
+              <div className="text-2xl font-bold">{allTrades.length}</div>
+              <div className="text-xs text-gray-500">All time</div>
             </CardContent>
           </Card>
           <Card>
@@ -146,10 +274,10 @@ const Trades = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {trades.filter(t => t.pnl > 0).length}
+                {allTrades.filter(t => t.pnl > 0).length}
               </div>
               <div className="text-xs text-gray-500">
-                {Math.round((trades.filter(t => t.pnl > 0).length / trades.length) * 100)}% win rate
+                {Math.round((allTrades.filter(t => t.pnl > 0).length / allTrades.length) * 100)}% win rate
               </div>
             </CardContent>
           </Card>
@@ -159,19 +287,26 @@ const Trades = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                ${trades.reduce((sum, trade) => sum + trade.pnl, 0).toFixed(2)}
+                ${allTrades.reduce((sum, trade) => sum + trade.pnl, 0).toFixed(2)}
               </div>
               <div className="text-xs text-gray-500">All time</div>
             </CardContent>
           </Card>
         </div>
 
+        {/* Results Summary */}
+        {(searchTerm || Object.values(filters).some(f => f !== "")) && (
+          <div className="text-sm text-gray-600">
+            Showing {filteredTrades.length} of {allTrades.length} trades
+          </div>
+        )}
+
         {/* Trades Table */}
         <Card>
           <CardHeader>
-            <CardTitle>All Trades</CardTitle>
+            <CardTitle>Closed Trades</CardTitle>
             <CardDescription>
-              Manage and review your trading history
+              All completed trades with final P&L
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -185,7 +320,6 @@ const Trades = () => {
                   <TableHead>Entry</TableHead>
                   <TableHead>Exit</TableHead>
                   <TableHead>P&L</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Strategy</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
@@ -202,7 +336,7 @@ const Trades = () => {
                     </TableCell>
                     <TableCell>{trade.lotSize}</TableCell>
                     <TableCell>{trade.entryPrice}</TableCell>
-                    <TableCell>{trade.exitPrice || '-'}</TableCell>
+                    <TableCell>{trade.exitPrice}</TableCell>
                     <TableCell>
                       <div className={`flex items-center ${trade.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {trade.pnl >= 0 ? (
@@ -213,11 +347,6 @@ const Trades = () => {
                         ${Math.abs(trade.pnl).toFixed(2)}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant={trade.status === 'Open' ? 'default' : 'secondary'}>
-                        {trade.status}
-                      </Badge>
-                    </TableCell>
                     <TableCell>{trade.strategy}</TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -227,11 +356,14 @@ const Trades = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditTrade(trade.id)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => handleDeleteTrade(trade.id)}
+                          >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
