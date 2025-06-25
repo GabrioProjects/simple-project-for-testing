@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +17,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, TrendingUp, TrendingDown } from "lucide-react";
@@ -138,15 +136,19 @@ const Trades = () => {
     return searchMatch && pairMatch && typeMatch && strategyMatch && profitableMatch;
   });
 
+  // Calculate stats for filtered trades
+  const totalFilteredTrades = filteredTrades.length;
+  const winningFilteredTrades = filteredTrades.filter(t => t.pnl > 0).length;
+  const totalFilteredPnL = filteredTrades.reduce((sum, trade) => sum + trade.pnl, 0);
+  const winRateFiltered = totalFilteredTrades > 0 ? Math.round((winningFilteredTrades / totalFilteredTrades) * 100) : 0;
+
   const handleEditTrade = (tradeId: number) => {
     console.log(`Editing trade ${tradeId}`);
-    // Navigate to edit page or open edit modal
     navigate(`/trades/edit/${tradeId}`);
   };
 
   const handleDeleteTrade = (tradeId: number) => {
     console.log(`Deleting trade ${tradeId}`);
-    // Implement delete functionality
   };
 
   const clearFilters = () => {
@@ -257,15 +259,19 @@ const Trades = () => {
           </Button>
         </div>
 
-        {/* Summary Cards */}
+        {/* Summary Cards - Updated to show filtered stats */}
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Closed Trades</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {(searchTerm || Object.values(filters).some(f => f !== "")) ? "Filtered Trades" : "Closed Trades"}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{allTrades.length}</div>
-              <div className="text-xs text-gray-500">All time</div>
+              <div className="text-2xl font-bold">{totalFilteredTrades}</div>
+              <div className="text-xs text-gray-500">
+                {(searchTerm || Object.values(filters).some(f => f !== "")) ? `of ${allTrades.length} total` : "All time"}
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -274,10 +280,10 @@ const Trades = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {allTrades.filter(t => t.pnl > 0).length}
+                {winningFilteredTrades}
               </div>
               <div className="text-xs text-gray-500">
-                {Math.round((allTrades.filter(t => t.pnl > 0).length / allTrades.length) * 100)}% win rate
+                {winRateFiltered}% win rate
               </div>
             </CardContent>
           </Card>
@@ -286,10 +292,12 @@ const Trades = () => {
               <CardTitle className="text-sm font-medium">Total P&L</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                ${allTrades.reduce((sum, trade) => sum + trade.pnl, 0).toFixed(2)}
+              <div className={`text-2xl font-bold ${totalFilteredPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                ${totalFilteredPnL.toFixed(2)}
               </div>
-              <div className="text-xs text-gray-500">All time</div>
+              <div className="text-xs text-gray-500">
+                {(searchTerm || Object.values(filters).some(f => f !== "")) ? "Filtered results" : "All time"}
+              </div>
             </CardContent>
           </Card>
         </div>

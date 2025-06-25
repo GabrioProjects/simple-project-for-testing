@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,25 +25,27 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { useApp } from "@/contexts/AppContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   currentPage?: string;
 }
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-  { name: 'Trades', href: '/trades', icon: FileText },
-  { name: 'Statistics', href: '/statistics', icon: PieChart },
-  { name: 'Add Trade', href: '/trades/new', icon: Plus },
-  { name: 'Import CSV', href: '/import', icon: Upload },
-  { name: 'Subscription', href: '/subscription', icon: CreditCard },
-  { name: 'Settings', href: '/settings', icon: Settings },
-];
-
 export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const { t } = useApp();
+
+  const navigation = [
+    { name: t('dashboard'), href: '/dashboard', icon: BarChart3, key: 'dashboard' },
+    { name: t('trades'), href: '/trades', icon: FileText, key: 'trades' },
+    { name: t('statistics'), href: '/statistics', icon: PieChart, key: 'statistics' },
+    { name: t('addTrade'), href: '/trades/new', icon: Plus, key: 'addTrade' },
+    { name: t('importCsv'), href: '/import', icon: Upload, key: 'importCsv' },
+    { name: t('subscription'), href: '/subscription', icon: CreditCard, key: 'subscription' },
+    { name: t('settings'), href: '/settings', icon: Settings, key: 'settings' },
+  ];
 
   const handleNavigation = (href: string) => {
     navigate(href);
@@ -62,7 +65,7 @@ export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: Dashboa
           const isActive = item.name === currentPage;
           return (
             <Button
-              key={item.name}
+              key={item.key}
               variant={isActive ? "default" : "ghost"}
               className={cn(
                 "w-full justify-start",
@@ -78,9 +81,9 @@ export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: Dashboa
       </nav>
       
       <div className="p-4 border-t">
-        <div className="bg-blue-50 p-4 rounded-lg">
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
           <h4 className="font-medium text-sm mb-1">Free Trial</h4>
-          <p className="text-xs text-gray-600 mb-2">5 days remaining</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">5 days remaining</p>
           <Button 
             size="sm" 
             className="w-full"
@@ -94,10 +97,10 @@ export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: Dashboa
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Desktop Sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-white border-r overflow-y-auto">
+        <div className="flex flex-col flex-grow bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
           <SidebarContent />
         </div>
       </div>
@@ -112,7 +115,7 @@ export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: Dashboa
       {/* Main Content */}
       <div className="lg:pl-64">
         {/* Top Navigation */}
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -128,7 +131,7 @@ export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: Dashboa
 
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1">
-              <h1 className="text-xl font-semibold text-gray-900 self-center">
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 self-center">
                 {currentPage}
               </h1>
             </div>
@@ -154,11 +157,11 @@ export const DashboardLayout = ({ children, currentPage = 'Dashboard' }: Dashboa
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/settings')}>
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    <span>{t('settings')}</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/subscription')}>
                     <CreditCard className="mr-2 h-4 w-4" />
-                    <span>Subscription</span>
+                    <span>{t('subscription')}</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/')}>
